@@ -71,7 +71,7 @@ function session(options = {}) {
                     throw new Error('skey 不正确');
                 }
                 request.sessionID = id;
-                request.session = session;
+                request.session = Object.assign(request.session, session);
                 if (isLoginPath) {
                     response.json({
                         code: 0,
@@ -123,7 +123,7 @@ function session(options = {}) {
             const wxBiz = new WXBizDataCrypt(appId, sessionKey);
             const userInfo = wxBiz.decryptData(encryptData, iv);
 
-            const session = request.session = {};
+            const session = request.session || {};
             session.id = request.sessionID = crypto.randomBytes(32).toString('hex');
             session.skey = generateSkey(sessionKey);
             session.sessionKey = sessionKey;
