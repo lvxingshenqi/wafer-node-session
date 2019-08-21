@@ -23,8 +23,8 @@ function session(options = {}) {
         }
         return options[key];
     }
-    const appId = requireOption('appId');
-    const appSecret = requireOption('appSecret');
+    // const appId = requireOption('appId');
+    // const appSecret = requireOption('appSecret');
     const loginPath = requireOption('loginPath');
 
     store = options.store || new MemoryStore();
@@ -35,6 +35,9 @@ function session(options = {}) {
     const maxAge = options.maxAge || 24 * 3600 * 1000;
 
     return co.wrap(function* middleware(request, response, next) {
+
+        var aId = request.appId;
+        var aSecret = request.appSecret;
 
         // get session param from header or query
         // in case of non-express application
@@ -55,7 +58,7 @@ function session(options = {}) {
         })();
 
         const isLoginPath = url.parse(request.url).pathname == loginPath;
-        const generateSkey = (sessionKey) => sha1(appId + appSecret + sessionKey);
+        const generateSkey = (sessionKey) => sha1(aId + aSecret + sessionKey);
 
         // session check
         const id = getParam(constants.WX_HEADER_ID);
@@ -66,7 +69,7 @@ function session(options = {}) {
                 if (!session) {
                     throw new Error('会话过期');
                 }
-                
+
                 if (skey != generateSkey(session.sessionKey)) {
                     throw new Error('skey 不正确');
                 }
@@ -118,9 +121,9 @@ function session(options = {}) {
                 return;
             }
 
-            const { sessionKey, openId } = yield login({ appId, appSecret, code });
+            const { sessionKey, openId } = yield login({ appId: aId, appSecret: aSecret, code });
 
-            const wxBiz = new WXBizDataCrypt(appId, sessionKey);
+            const wxBiz = new WXBizDataCrypt(aId, sessionKey);
             const userInfo = wxBiz.decryptData(encryptData, iv);
 
             const session = request.session || {};
