@@ -23,8 +23,8 @@ function session(options = {}) {
         }
         return options[key];
     }
-    // const appId = requireOption('appId');
-    // const appSecret = requireOption('appSecret');
+    const appId = requireOption('appId');
+    const appSecret = requireOption('appSecret');
     const loginPath = requireOption('loginPath');
 
     store = options.store || new MemoryStore();
@@ -36,8 +36,8 @@ function session(options = {}) {
 
     return co.wrap(function* middleware(request, response, next) {
 
-        var aId = request.appId;
-        var aSecret = request.appSecret;
+        var aId = request.appId || appId;
+        var aSecret = request.appSecret || appSecret;
 
         // get session param from header or query
         // in case of non-express application
